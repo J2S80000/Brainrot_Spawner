@@ -1,0 +1,72 @@
+[
+    {
+        "name": "Aquanut",
+        "rarity": "Common",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 100.0
+    },
+    {
+        "name": "Tigrilini Watermelini",
+        "rarity": "Legendary",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 5000.0
+    },
+    {
+        "name": "Glorbo Fruttodrillo",
+        "rarity": "Common",
+        "type": "Gold",
+        "mutation": "None",
+        "price": 150.0
+    },
+    {
+        "name": "Cocosini Mama",
+        "rarity": "Common",
+        "type": "Normal",
+        "mutation": "Minor",
+        "price": 120.0
+    },
+    {
+        "name": "Cocosini Mama",
+        "rarity": "Common",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 100.0
+    },
+    {
+        "name": "Mariachi Corazoni",
+        "rarity": "Epic",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 1500.0
+    },
+    {
+        "name": "1x1x1x1",
+        "rarity": "Common",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 100.0
+    },
+    {
+        "name": "Noobini Pizzanini",
+        "rarity": "Epic",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 1500.0
+    },
+    {
+        "name": "Blackhole Goat",
+        "rarity": "Common",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 100.0
+    },
+    {
+        "name": "Bananita Dolphinita",
+        "rarity": "Common",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 100.0
+    }
+]
