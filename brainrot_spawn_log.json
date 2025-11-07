@@ -1,82 +1,82 @@
 [
     {
-        "name": "Gorillo Watermelondrillo",
-        "rarity": "Rare",
-        "type": "Diamond",
-        "mutation": "None",
-        "price": 1250.0,
-        "image_url": "https://static.wikia.nocookie.net/stealabr/images/e/ea/Gorillo-Watermelondrillo.png"
-    },
-    {
-        "name": "Bombombini Gusini",
+        "name": "Avocadini Antilopini",
         "rarity": "Common",
         "type": "Normal",
         "mutation": "None",
         "price": 100.0,
-        "image_url": "https://static.wikia.nocookie.net/stealabr/images/a/ac/Cant_come_up_with_a_funny_joke_for_this_one.png"
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/1/1a/Avocadini_Antilopini.png"
     },
     {
-        "name": "Las Sis",
-        "rarity": "Rare",
+        "name": "Extinct Matteo",
+        "rarity": "Common",
+        "type": "Diamond",
+        "mutation": "Minor",
+        "price": 300.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/0/0a/Man_im_dead.png"
+    },
+    {
+        "name": "Fragola La La La",
+        "rarity": "Common",
         "type": "Normal",
         "mutation": "None",
-        "price": 500.0,
-        "image_url": "https://static.wikia.nocookie.net/stealabr/images/e/e8/Las_Sis.png"
+        "price": 100.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/a/af/Sammy_the_strawberry.png"
     },
     {
-        "name": "Los Tipi Tacos",
-        "rarity": "Rare",
+        "name": "Avocadini Antilopini",
+        "rarity": "Common",
+        "type": "Normal",
+        "mutation": "Minor",
+        "price": 120.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/1/1a/Avocadini_Antilopini.png"
+    },
+    {
+        "name": "Los Tralaleritos",
+        "rarity": "Epic",
         "type": "Normal",
         "mutation": "None",
-        "price": 500.0,
-        "image_url": "https://static.wikia.nocookie.net/stealabr/images/f/f2/Los_tipi_tacos.png"
+        "price": 1500.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/0/0f/Los_Tralaleritos.png"
     },
     {
-        "name": "Frigo Camelo",
+        "name": "Mastodontico Telepiedone",
+        "rarity": "Epic",
+        "type": "Gold",
+        "mutation": "Minor",
+        "price": 2700.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/a/a5/Clanker.png"
+    },
+    {
+        "name": "Toiletto Focaccino",
+        "rarity": "God",
+        "type": "Gold",
+        "mutation": "None",
+        "price": 30000.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/5/59/ToilettoFocaccino.png"
+    },
+    {
+        "name": "Brainrot God Lucky Block",
+        "rarity": "Common",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 100.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/4/4a/Brainrot_God_Gambling_Block.png"
+    },
+    {
+        "name": "Cacasito Satalito",
+        "rarity": "Common",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 100.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/1/1e/Lebron_james.png"
+    },
+    {
+        "name": "Chef Crabracadabra",
         "rarity": "Common",
         "type": "Gold",
         "mutation": "None",
         "price": 150.0,
-        "image_url": "https://static.wikia.nocookie.net/stealabr/images/a/a7/Lol_Fridge.png"
-    },
-    {
-        "name": "Gorillo Watermelondrillo",
-        "rarity": "Rare",
-        "type": "Normal",
-        "mutation": "None",
-        "price": 500.0,
-        "image_url": "https://static.wikia.nocookie.net/stealabr/images/e/ea/Gorillo-Watermelondrillo.png"
-    },
-    {
-        "name": "John Pork",
-        "rarity": "Rare",
-        "type": "Normal",
-        "mutation": "None",
-        "price": 500.0,
-        "image_url": null
-    },
-    {
-        "name": "Los 67",
-        "rarity": "Rare",
-        "type": "Normal",
-        "mutation": "None",
-        "price": 500.0,
-        "image_url": "https://static.wikia.nocookie.net/stealabr/images/d/db/Los-67.png"
-    },
-    {
-        "name": "Tractoro Dinosauro",
-        "rarity": "God",
-        "type": "Normal",
-        "mutation": "None",
-        "price": 20000.0,
-        "image_url": "https://static.wikia.nocookie.net/stealabr/images/4/43/TractoroDino.png"
-    },
-    {
-        "name": "Bulbito Bandito Traktorito",
-        "rarity": "Common",
-        "type": "Normal",
-        "mutation": "Mythic",
-        "price": 200.0,
-        "image_url": "https://static.wikia.nocookie.net/stealabr/images/e/eb/Five_hotdogs_for_dinner_tonight.png"
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/9/9d/Travis_scott.png"
     }
 ]

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainrot Spawn Simulator - Web Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .panel h2 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .control-group input,
+        .control-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 10px;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        button.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-box .value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-box .label {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        .spawn-container {
+            max-height: 600px;
+            overflow-y: auto;
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .spawn-item {
+            background: white;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            transition: all 0.3s;
+            animation: slideIn 0.3s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .spawn-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .spawn-item.duplicate {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .spawn-item.duplicate::after {
+            content: "⚠️ DOUBLON";
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: #ff6b6b;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        .spawn-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: #eee;
+            flex-shrink: 0;
+        }
+
+        .spawn-info {
+            flex: 1;
+        }
+
+        .spawn-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .spawn-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .detail-item {
+            background: #f5f5f5;
+            padding: 5px 8px;
+            border-radius: 4px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .spawn-price {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #27ae60;
+            text-align: right;
+            min-width: 100px;
+        }
+
+        /* Couleurs par rareté */
+        .rarity-common { color: #95a5a6; }
+        .rarity-rare { color: #3498db; }
+        .rarity-epic { color: #9b59b6; }
+        .rarity-legendary { color: #f39c12; }
+        .rarity-god { color: #e74c3c; }
+
+        .status-bar {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-message {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .spawn-details {
+                grid-template-columns: 1fr;
+            }
+
+            .spawn-item {
+                flex-direction: column;
+            }
+
+            .spawn-image {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 Brainrot Spawn Simulator</h1>
+            <p>Simulateur de spawn temps réel avec interface web</p>
+        </header>
+
+        <div class="status-bar">
+            <div>
+                <strong>Total de spawns:</strong> <span id="totalSpawns">0</span> | 
+                <strong>Doublons:</strong> <span id="duplicateCount">0</span> | 
+                <strong>Uniques:</strong> <span id="uniqueCount">0</span>
+            </div>
+            <button class="secondary" onclick="clearHistory()" style="width: 150px;">🗑️ Effacer</button>
+        </div>
+
+        <div class="main-grid">
+            <!-- Panneau de contrôle -->
+            <div class="panel">
+                <h2>⚙️ Contrôles</h2>
+
+                <div class="info-message">
+                    💡 Tip: Utilisez "Un seul spawn" pour tester, ou "Simulation" pour une rafale
+                </div>
+
+                <div class="control-group">
+                    <label for="spawnCount">Nombre de spawns:</label>
+                    <input type="number" id="spawnCount" value="10" min="1" max="100">
+                </div>
+
+                <div class="control-group">
+                    <label for="spawnSpeed">Vitesse (délai ms entre spawns):</label>
+                    <input type="range" id="spawnSpeed" min="50" max="1000" step="50" value="200">
+                    <small id="speedValue">200ms</small>
+                </div>
+
+                <button onclick="singleSpawn()">⏭️ Un seul spawn</button>
+                <button onclick="startSimulation()">▶️ Lancer simulation</button>
+
+                <hr style="margin: 20px 0; border: none; border-top: 2px solid #eee;">
+
+                <h2>📊 Statistiques</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="value" id="statTotal">0</div>
+                        <div class="label">Total spawns</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value" id="statDuplicates">0</div>
+                        <div class="label">Doublons</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value" id="statUnique">0</div>
+                        <div class="label">Uniques</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value">254</div>
+                        <div class="label">Brainrots dispo</div>
+                    </div>
+                </div>
+
+                <button onclick="updateStats()">🔄 Rafraîchir stats</button>
+            </div>
+
+            <!-- Flux des spawns -->
+            <div class="panel">
+                <h2>📢 Flux des spawns</h2>
+                <div class="spawn-container" id="spawnContainer">
+                    <div style="text-align: center; color: #999; padding: 40px 20px;">
+                        En attente de spawns...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let spawnCount = 0;
+        let isSimulating = false;
+
+        // === FONCTIONS PRINCIPALES ===
+
+        async function singleSpawn() {
+            try {
+                const response = await fetch('/api/spawn', { method: 'POST' });
+                const spawn = await response.json();
+                addSpawnToUI(spawn);
+                updateStats();
+            } catch (e) {
+                console.error('Erreur lors du spawn:', e);
+                alert('Erreur: ' + e.message);
+            }
+        }
+
+        async function startSimulation() {
+            if (isSimulating) {
+                alert('Une simulation est déjà en cours!');
+                return;
+            }
+
+            const count = parseInt(document.getElementById('spawnCount').value);
+            const delay = parseInt(document.getElementById('spawnSpeed').value);
+
+            if (count < 1 || count > 100) {
+                alert('Nombre invalide (1-100)');
+                return;
+            }
+
+            isSimulating = true;
+            document.querySelector('button[onclick="startSimulation()"]').disabled = true;
+            document.querySelector('button[onclick="singleSpawn()"]').disabled = true;
+
+            try {
+                const response = await fetch('/api/spawn-many', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ count: count, speed: 1000 / delay })
+                });
+
+                const spawns = await response.json();
+                
+                // Afficher les spawns avec délai
+                for (let i = 0; i < spawns.length; i++) {
+                    addSpawnToUI(spawns[i]);
+                    await sleep(delay);
+                }
+
+                updateStats();
+                alert(`✓ Simulation terminée! ${count} spawns créés.`);
+            } catch (e) {
+                console.error('Erreur lors de la simulation:', e);
+                alert('Erreur: ' + e.message);
+            } finally {
+                isSimulating = false;
+                document.querySelector('button[onclick="startSimulation()"]').disabled = false;
+                document.querySelector('button[onclick="singleSpawn()"]').disabled = false;
+            }
+        }
+
+        function addSpawnToUI(spawn) {
+            const container = document.getElementById('spawnContainer');
+
+            // Vider le message d'attente
+            if (container.children.length === 1 && container.children[0].textContent.includes('En attente')) {
+                container.innerHTML = '';
+            }
+
+            const spawnEl = document.createElement('div');
+            spawnEl.className = `spawn-item ${spawn.is_duplicate ? 'duplicate' : ''}`;
+
+            const rarity = spawn.rarity.toLowerCase();
+            const imageUrl = spawn.image_url || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22%3E%3Crect fill=%22%23ddd%22 width=%2280%22 height=%2280%22/%3E%3Ctext x=%2240%22 y=%2245%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2214%22%3ENo Image%3C/text%3E%3C/svg%3E';
+
+            spawnEl.innerHTML = `
+                <img src="${imageUrl}" alt="${spawn.name}" class="spawn-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22%3E%3Crect fill=%22%23ddd%22 width=%2280%22 height=%2280%22/%3E%3Ctext x=%2240%22 y=%2245%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2214%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+                <div class="spawn-info">
+                    <div class="spawn-name">${spawn.name}</div>
+                    <div class="spawn-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Rareté:</span>
+                            <span class="rarity-${rarity}">${spawn.rarity}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type:</span>
+                            <span>${spawn.type}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Mutation:</span>
+                            <span>${spawn.mutation}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="spawn-price">
+                    ${spawn.price.toLocaleString('fr-FR')}$
+                </div>
+            `;
+
+            // Ajouter en haut du container
+            container.insertBefore(spawnEl, container.firstChild);
+
+            // Limiter le nombre d'éléments affichés
+            while (container.children.length > 50) {
+                container.removeChild(container.lastChild);
+            }
+
+            spawnCount++;
+        }
+
+        async function updateStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = response.json();
+                stats.then(s => {
+                    document.getElementById('totalSpawns').textContent = s.total_spawns;
+                    document.getElementById('duplicateCount').textContent = s.duplicates;
+                    document.getElementById('uniqueCount').textContent = s.unique_brainrots;
+                    document.getElementById('statTotal').textContent = s.total_spawns;
+                    document.getElementById('statDuplicates').textContent = s.duplicates;
+                    document.getElementById('statUnique').textContent = s.unique_brainrots;
+                });
+            } catch (e) {
+                console.error('Erreur lors de la récupération des stats:', e);
+            }
+        }
+
+        async function clearHistory() {
+            if (confirm('Êtes-vous sûr de vouloir effacer tout l\'historique?')) {
+                try {
+                    await fetch('/api/clear', { method: 'POST' });
+                    document.getElementById('spawnContainer').innerHTML = 
+                        '<div style="text-align: center; color: #999; padding: 40px 20px;">L\'historique a été effacé</div>';
+                    spawnCount = 0;
+                    updateStats();
+                } catch (e) {
+                    console.error('Erreur:', e);
+                }
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // === EVENT LISTENERS ===
+
+        document.getElementById('spawnSpeed').addEventListener('input', function() {
+            document.getElementById('speedValue').textContent = this.value + 'ms';
+        });
+
+        // Demander les stats initiales
+        setTimeout(updateStats, 500);
+    </script>
+</body>
+</html>

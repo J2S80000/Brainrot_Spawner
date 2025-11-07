@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Graphiques</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .chart-box { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .chart-box h2 { color: #667eea; margin-bottom: 15px; }
+        canvas { max-height: 300px; }
+        button { padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 20px; }
+        button:hover { background: #764ba2; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 2em; font-weight: bold; color: #667eea; }
+        .stat-label { color: #666; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Test Dashboard Brainrot</h1>
+        <button onclick="generateSpawns()">📊 Générer 50 spawns et voir graphiques</button>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalSpawns">0</div>
+                <div class="stat-label">Total Spawns</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalPrice">0$</div>
+                <div class="stat-label">Prix Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgPrice">0$</div>
+                <div class="stat-label">Moyenne</div>
+            </div>
+        </div>
+
+        <div class="chart-box">
+            <h2>💰 Distribution des Prix</h2>
+            <canvas id="priceDistributionChart"></canvas>
+        </div>
+
+        <div class="chart-box">
+            <h2>📈 Prix Cumulé</h2>
+            <canvas id="cumulativePriceChart"></canvas>
+        </div>
+
+        <div class="chart-box">
+            <h2>📊 Distribution Théorique (MASTER_LIST)</h2>
+            <canvas id="theoreticalChart"></canvas>
+        </div>
+
+        <div class="chart-box">
+            <h2>📢 Raretés Observées</h2>
+            <canvas id="rarityChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        let charts = {};
+
+        async function generateSpawns() {
+            console.log("Génération de 50 spawns...");
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/spawn-many', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ count: 50, speed: 1.0 })
+                });
+
+                if (!response.ok) {
+                    alert(`Erreur: ${response.status}`);
+                    return;
+                }
+
+                await updateAllGraphs();
+                alert("✓ 50 spawns créés!");
+            } catch (e) {
+                console.error("Erreur:", e);
+                alert("Erreur: " + e.message);
+            }
+        }
+
+        async function updateAllGraphs() {
+            try {
+                // Récupérer stats de base
+                const statsResp = await fetch('http://localhost:5000/api/stats');
+                const stats = await statsResp.json();
+                
+                document.getElementById('totalSpawns').textContent = stats.total_spawns;
+                document.getElementById('totalPrice').textContent = stats.total_price.toLocaleString('fr-FR') + '$';
+                document.getElementById('avgPrice').textContent = Math.round(stats.total_price / stats.total_spawns) + '$';
+
+                // Graphique Raretés Observées
+                const rarityCtx = document.getElementById('rarityChart');
+                if (charts.rarity) charts.rarity.destroy();
+                charts.rarity = new Chart(rarityCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(stats.rarity_breakdown),
+                        datasets: [{
+                            data: Object.values(stats.rarity_breakdown),
+                            backgroundColor: ['#95a5a6', '#3498db', '#9b59b6', '#f39c12', '#e74c3c']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+
+                // Récupérer stats avancées
+                const advResp = await fetch('http://localhost:5000/api/advanced-stats');
+                if (!advResp.ok) {
+                    console.warn("Advanced stats pas encore disponible");
+                    return;
+                }
+                
+                const adv = await advResp.json();
+
+                // Graphique Distribution Théorique
+                const theoreticalCtx = document.getElementById('theoreticalChart');
+                if (charts.theoretical) charts.theoretical.destroy();
+                charts.theoretical = new Chart(theoreticalCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(adv.rarity_distribution),
+                        datasets: [{
+                            label: 'Dans MASTER_LIST',
+                            data: Object.values(adv.rarity_distribution),
+                            backgroundColor: ['#95a5a6', '#3498db', '#9b59b6', '#f39c12', '#e74c3c']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+
+                // Graphique Distribution des Prix
+                const history = await fetch('http://localhost:5000/api/history?limit=1000').then(r => r.json());
+                
+                const priceBuckets = {
+                    '100-500': 0,
+                    '500-2000': 0,
+                    '2000-5000': 0,
+                    '5000-10000': 0,
+                    '10000+': 0
+                };
+
+                history.forEach(spawn => {
+                    const price = spawn.price;
+                    if (price < 500) priceBuckets['100-500']++;
+                    else if (price < 2000) priceBuckets['500-2000']++;
+                    else if (price < 5000) priceBuckets['2000-5000']++;
+                    else if (price < 10000) priceBuckets['5000-10000']++;
+                    else priceBuckets['10000+']++;
+                });
+
+                const priceDistCtx = document.getElementById('priceDistributionChart');
+                if (charts.priceDistribution) charts.priceDistribution.destroy();
+                charts.priceDistribution = new Chart(priceDistCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(priceBuckets),
+                        datasets: [{
+                            label: 'Nombre de spawns',
+                            data: Object.values(priceBuckets),
+                            backgroundColor: '#667eea'
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+
+                // Graphique Prix Cumulé
+                let cumsum = 0;
+                const cumulativePrices = [];
+                const labels = [];
+
+                history.forEach((spawn, idx) => {
+                    cumsum += spawn.price;
+                    if (idx % Math.max(1, Math.floor(history.length / 20)) === 0) {
+                        cumulativePrices.push(cumsum);
+                        labels.push(`#${idx + 1}`);
+                    }
+                });
+
+                const cumulativePriceCtx = document.getElementById('cumulativePriceChart');
+                if (charts.cumulativePrice) charts.cumulativePrice.destroy();
+                charts.cumulativePrice = new Chart(cumulativePriceCtx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Prix cumulé ($)',
+                            data: cumulativePrices,
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+
+                console.log("✓ Tous les graphiques mis à jour!");
+
+            } catch (e) {
+                console.error("Erreur:", e);
+            }
+        }
+    </script>
+</body>
+</html>

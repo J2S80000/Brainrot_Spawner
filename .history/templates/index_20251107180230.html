@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainrot Spawn Simulator - Web Interface</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .panel h2 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .control-group input,
+        .control-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-box .value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-box .label {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        .spawn-container {
+            max-height: 600px;
+            overflow-y: auto;
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .spawn-item {
+            background: white;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            transition: all 0.3s;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .spawn-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .spawn-item.duplicate {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .spawn-item.duplicate::before {
+            content: "⚠️ DOUBLON";
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: #ff6b6b;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        .spawn-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .spawn-info {
+            flex: 1;
+        }
+
+        .spawn-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .spawn-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .detail-item {
+            background: #f5f5f5;
+            padding: 5px 8px;
+            border-radius: 4px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .spawn-price {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #27ae60;
+            text-align: right;
+            min-width: 100px;
+        }
+
+        /* Couleurs par rareté */
+        .rarity-common { color: #95a5a6; }
+        .rarity-rare { color: #3498db; }
+        .rarity-epic { color: #9b59b6; }
+        .rarity-legendary { color: #f39c12; }
+        .rarity-god { color: #e74c3c; }
+
+        .connection-status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e74c3c;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .connection-status.connected {
+            background: #27ae60;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-bar {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .status-right {
+            display: flex;
+            gap: 15px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .spawn-details {
+                grid-template-columns: 1fr;
+            }
+
+            .spawn-item {
+                flex-direction: column;
+            }
+
+            .spawn-image {
+                width: 100%;
+            }
+        }
+
+        .scroll-indicator {
+            text-align: center;
+            color: #999;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 Brainrot Spawn Simulator</h1>
+            <p>Simulateur de spawn temps réel avec interface web</p>
+        </header>
+
+        <div class="status-bar">
+            <div class="status-left">
+                <span>
+                    <span class="connection-status" id="statusIndicator"></span>
+                    <span id="statusText">Connexion...</span>
+                </span>
+                <span>Total de sessions actives: <strong id="activeSessions">0</strong></span>
+            </div>
+            <div class="status-right">
+                <button class="secondary" onclick="clearHistory()">Effacer l'historique</button>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Panneau de contrôle -->
+            <div class="panel">
+                <h2>⚙️ Contrôles</h2>
+
+                <div class="control-group">
+                    <label for="spawnSpeed">Vitesse de spawn:</label>
+                    <input type="range" id="spawnSpeed" min="0.5" max="5" step="0.5" value="1.0">
+                    <small id="speedValue">1.0x</small>
+                </div>
+
+                <div class="control-group">
+                    <label for="duration">Durée (secondes):</label>
+                    <input type="number" id="duration" value="30" min="5" max="300">
+                </div>
+
+                <button onclick="startSimulation()">▶️ Démarrer simulation</button>
+                <button onclick="singleSpawn()" style="margin-top: 10px;">⏭️ Un seul spawn</button>
+
+                <hr style="margin: 20px 0; border: none; border-top: 2px solid #eee;">
+
+                <h2>📊 Statistiques</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="value" id="totalSpawns">0</div>
+                        <div class="label">Total spawns</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value" id="duplicateCount">0</div>
+                        <div class="label">Doublons</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value" id="uniqueCount">0</div>
+                        <div class="label">Uniques</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value" id="totalBrainrots">254</div>
+                        <div class="label">Brainrots dispo</div>
+                    </div>
+                </div>
+
+                <button onclick="updateStats()" style="margin-top: 10px;">🔄 Rafraîchir stats</button>
+            </div>
+
+            <!-- Flux des spawns -->
+            <div class="panel">
+                <h2>📢 Flux des spawns</h2>
+                <div class="spawn-container" id="spawnContainer">
+                    <div style="text-align: center; color: #999; padding: 40px 20px;">
+                        En attente de spawns...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let spawnCount = 0;
+
+        // === ÉVÉNEMENTS WEBSOCKET ===
+
+        socket.on('connect', function() {
+            document.getElementById('statusIndicator').classList.add('connected');
+            document.getElementById('statusText').textContent = 'Connecté au serveur';
+            console.log('✓ Connecté au serveur');
+        });
+
+        socket.on('disconnect', function() {
+            document.getElementById('statusIndicator').classList.remove('connected');
+            document.getElementById('statusText').textContent = 'Déconnecté';
+            console.log('✗ Déconnecté');
+        });
+
+        socket.on('brainrot_spawned', function(data) {
+            spawnCount++;
+            addSpawnToUI(data);
+            updateStats();
+        });
+
+        socket.on('simulation_ended', function(data) {
+            console.log('Simulation terminée:', data);
+            updateStats();
+        });
+
+        socket.on('stats_update', function(stats) {
+            updateStatsDisplay(stats);
+        });
+
+        socket.on('history_cleared', function() {
+            document.getElementById('spawnContainer').innerHTML = 
+                '<div style="text-align: center; color: #999; padding: 40px 20px;">L\'historique a été effacé</div>';
+            spawnCount = 0;
+            updateStats();
+        });
+
+        // === FONCTIONS UI ===
+
+        function addSpawnToUI(spawn) {
+            const container = document.getElementById('spawnContainer');
+
+            // Vider le message d'attente
+            if (container.children.length === 1 && container.children[0].textContent.includes('En attente')) {
+                container.innerHTML = '';
+            }
+
+            const spawnEl = document.createElement('div');
+            spawnEl.className = `spawn-item ${spawn.is_duplicate ? 'duplicate' : ''}`;
+
+            const rarity = spawn.rarity.toLowerCase();
+            const imageUrl = spawn.image_url || '/static/placeholder.png';
+
+            spawnEl.innerHTML = `
+                <img src="${imageUrl}" alt="${spawn.name}" class="spawn-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22%3E%3Crect fill=%22%23ddd%22 width=%2280%22 height=%2280%22/%3E%3Ctext x=%2240%22 y=%2245%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2214%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+                <div class="spawn-info">
+                    <div class="spawn-name">${spawn.name}</div>
+                    <div class="spawn-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Rareté:</span>
+                            <span class="rarity-${rarity}">${spawn.rarity}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type:</span>
+                            <span>${spawn.type}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Mutation:</span>
+                            <span>${spawn.mutation}</span>
+                        </div>
+                    </div>
+                    ${spawn.is_duplicate ? '<div class="detail-item" style="background: #ffe6e6; margin-top: 8px;"><span style="color: #e74c3c;">⚠️ DOUBLON DÉTECTÉ!</span></div>' : ''}
+                </div>
+                <div class="spawn-price">
+                    ${spawn.price.toLocaleString('fr-FR')}$
+                </div>
+            `;
+
+            // Ajouter en haut du container
+            container.insertBefore(spawnEl, container.firstChild);
+
+            // Limiter le nombre d'éléments affichés
+            while (container.children.length > 50) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        function startSimulation() {
+            const speed = parseFloat(document.getElementById('spawnSpeed').value);
+            const duration = parseInt(document.getElementById('duration').value);
+
+            socket.emit('start_simulation', {
+                speed: speed,
+                duration: duration
+            });
+
+            console.log(`Simulation lancée: ${speed}x, ${duration}s`);
+        }
+
+        function singleSpawn() {
+            socket.emit('single_spawn');
+        }
+
+        function updateStats() {
+            socket.emit('get_stats');
+        }
+
+        function updateStatsDisplay(stats) {
+            document.getElementById('totalSpawns').textContent = stats.total_spawns;
+            document.getElementById('duplicateCount').textContent = stats.duplicates;
+            document.getElementById('uniqueCount').textContent = stats.unique_brainrots;
+            document.getElementById('activeSessions').textContent = stats.active_sessions;
+        }
+
+        function clearHistory() {
+            if (confirm('Êtes-vous sûr de vouloir effacer tout l\'historique?')) {
+                socket.emit('clear_history');
+            }
+        }
+
+        // === EVENT LISTENERS ===
+
+        document.getElementById('spawnSpeed').addEventListener('input', function() {
+            document.getElementById('speedValue').textContent = this.value + 'x';
+        });
+
+        // Demander les stats initiales
+        setTimeout(updateStats, 1000);
+    </script>
+</body>
+</html>
