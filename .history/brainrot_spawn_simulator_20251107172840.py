@@ -2,6 +2,9 @@
 import time
 import json
 import pandas as pd
+import requests
+import os
+import sys
 
 # Importer la MASTER_LIST generee dynamiquement par le scraper
 from master_list_generated import MASTER_LIST
@@ -25,8 +28,52 @@ MUTATION_WEIGHTS = [70, 20, 8, 2]
 # === JOURNAL DE SPAWN ===
 spawn_log = []
 
+def download_and_show_image(image_url, brainrot_name):
+    """
+    Telecharge et affiche l'image du brainrot.
+    """
+    if not image_url:
+        return False
+    
+    try:
+        # Creer un dossier pour les images
+        os.makedirs("brainrot_images", exist_ok=True)
+        
+        # Generer un nom de fichier valide
+        safe_name = "".join(c for c in brainrot_name if c.isalnum() or c in (' ', '_', '-')).rstrip()
+        safe_name = safe_name.replace(" ", "_")[:50]
+        
+        img_path = f"brainrot_images/{safe_name}.png"
+        
+        # Telecharger l'image
+        print(f"  [IMAGE] Telechargement pour {brainrot_name}...")
+        response = requests.get(image_url, timeout=5)
+        response.raise_for_status()
+        
+        # Sauvegarder l'image
+        with open(img_path, 'wb') as f:
+            f.write(response.content)
+        
+        print(f"  [OK] Image sauvegardee: {img_path}")
+        
+        # Ouvrir l'image
+        try:
+            if sys.platform == 'win32':
+                os.startfile(img_path)
+            elif sys.platform == 'darwin':
+                os.system(f'open "{img_path}"')
+            else:
+                os.system(f'xdg-open "{img_path}"')
+        except:
+            pass
+        
+        return True
+        
+    except Exception as e:
+        return False
 
-def spawn_brainrot():
+# === JOURNAL DE SPAWN ===
+spawn_log = []
     # === FONCTION DE SPAWN sélection pondérée basée sur le Poids (spawn_weight) de Spawn ===
     selected = random.choices(MASTER_LIST, weights=[b["spawn_weight"] for b in MASTER_LIST], k=1)[0]
     # Sélectionner le type et la mutation aléatoirement avec pondération

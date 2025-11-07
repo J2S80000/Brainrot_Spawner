@@ -1,72 +1,82 @@
 [
     {
-        "name": "Aquanut",
+        "name": "Gorillo Watermelondrillo",
+        "rarity": "Rare",
+        "type": "Diamond",
+        "mutation": "None",
+        "price": 1250.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/e/ea/Gorillo-Watermelondrillo.png"
+    },
+    {
+        "name": "Bombombini Gusini",
         "rarity": "Common",
         "type": "Normal",
         "mutation": "None",
-        "price": 100.0
+        "price": 100.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/a/ac/Cant_come_up_with_a_funny_joke_for_this_one.png"
     },
     {
-        "name": "Tigrilini Watermelini",
-        "rarity": "Legendary",
+        "name": "Las Sis",
+        "rarity": "Rare",
         "type": "Normal",
         "mutation": "None",
-        "price": 5000.0
+        "price": 500.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/e/e8/Las_Sis.png"
     },
     {
-        "name": "Glorbo Fruttodrillo",
+        "name": "Los Tipi Tacos",
+        "rarity": "Rare",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 500.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/f/f2/Los_tipi_tacos.png"
+    },
+    {
+        "name": "Frigo Camelo",
         "rarity": "Common",
         "type": "Gold",
         "mutation": "None",
-        "price": 150.0
+        "price": 150.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/a/a7/Lol_Fridge.png"
     },
     {
-        "name": "Cocosini Mama",
+        "name": "Gorillo Watermelondrillo",
+        "rarity": "Rare",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 500.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/e/ea/Gorillo-Watermelondrillo.png"
+    },
+    {
+        "name": "John Pork",
+        "rarity": "Rare",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 500.0,
+        "image_url": null
+    },
+    {
+        "name": "Los 67",
+        "rarity": "Rare",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 500.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/d/db/Los-67.png"
+    },
+    {
+        "name": "Tractoro Dinosauro",
+        "rarity": "God",
+        "type": "Normal",
+        "mutation": "None",
+        "price": 20000.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/4/43/TractoroDino.png"
+    },
+    {
+        "name": "Bulbito Bandito Traktorito",
         "rarity": "Common",
         "type": "Normal",
-        "mutation": "Minor",
-        "price": 120.0
-    },
-    {
-        "name": "Cocosini Mama",
-        "rarity": "Common",
-        "type": "Normal",
-        "mutation": "None",
-        "price": 100.0
-    },
-    {
-        "name": "Mariachi Corazoni",
-        "rarity": "Epic",
-        "type": "Normal",
-        "mutation": "None",
-        "price": 1500.0
-    },
-    {
-        "name": "1x1x1x1",
-        "rarity": "Common",
-        "type": "Normal",
-        "mutation": "None",
-        "price": 100.0
-    },
-    {
-        "name": "Noobini Pizzanini",
-        "rarity": "Epic",
-        "type": "Normal",
-        "mutation": "None",
-        "price": 1500.0
-    },
-    {
-        "name": "Blackhole Goat",
-        "rarity": "Common",
-        "type": "Normal",
-        "mutation": "None",
-        "price": 100.0
-    },
-    {
-        "name": "Bananita Dolphinita",
-        "rarity": "Common",
-        "type": "Normal",
-        "mutation": "None",
-        "price": 100.0
+        "mutation": "Mythic",
+        "price": 200.0,
+        "image_url": "https://static.wikia.nocookie.net/stealabr/images/e/eb/Five_hotdogs_for_dinner_tonight.png"
     }
 ]
